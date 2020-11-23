@@ -1,0 +1,120 @@
+---
+title: "Curso edX-  Análisis de datos empresariales con R"
+output: html_notebook
+---
+# Módulo 1: Introducción al análisis multivariado.
+
+## Lectura de Datos Multivariados
+
+En este primer video vamos a leer una base de datos estructurada como un conjunto de datos multivariados.
+
+```{r}
+redwine <- read.csv("https://bit.ly/2DdpG9E", header = T)
+
+#read.csv(file, header = TRUE,  sep = ",", quote = "\"", dec = ".", fill = TRUE,  comment.char= "", ...)
+```
+
+## Funciones de Análisis del Data Frame
+
+En este video analizamos el data frame en términos de su estructura y sus características estadísticas esto lo hacemos usando los comandos *`str`* y *`summary`* 
+La importancia de este análisis radica en que si no conocemos el tipo de variables o sus parámetros estadísticos no podremos hacer el análisis.
+
+```{r}
+str(redwine)
+```
+
+```{r}
+summary(redwine) 
+```
+
+## Análisis de Covarianza y correlación
+
+**Analisis de normalidad en R.**
+
+```{r}
+cov(redwine)
+```
+
+**Obtener Matriz de correlacion.**
+
+La matriz varianza–covarianza es una matriz cuadrada de dimensión nxm que recoge las varianzas en la diagonal principal y las covarianzas en los elementos de fuera de la diagonal principal.  El modelo mide y muestra la interdependencia en relaciones asociadas o entre cada pareja de variables y todas al mismo tiempo. [wikipedia.org/wiki/Matriz_de_correlación.](https://es.wikipedia.org/wiki/Matriz_de_correlaci%C3%B3n)
+
+![](https://courses.edx.org/assets/courseware/v1/2d42bba62009d0f9c6de8a563c43cde5/asset-v1:AnahuacX+UAMY.CP4.2x+3T2020+type@asset+block/matriz-varianza_covarianza.png)
+
+```{r}
+cor(redwine)
+```
+
+```{r}
+cor(redwine[,c("ï..fixed.acidity", "citric.acid", "pH")]) # seleccionamos solo algunas variables del df
+```
+
+### Vamos a realizar ahora un análisis de co-varianza y correlación sobre el data set iris:
+
+[https://en.wikipedia.org/wiki/Iris_flower_data_set](https://en.wikipedia.org/wiki/Iris_flower_data_set)
+
+```{r}
+data("iris")
+library(dplyr)
+colnames(iris)
+irisnum <- select((iris), Sepal.Length:Petal.Width)
+```
+
+```{r}
+cov(irisnum)
+```
+
+```{r}
+cor(irisnum)
+```
+
+### Diseño de la Gráfica de Correlacion
+
+```{r echo=TRUE, fig.height=10, fig.width=10}
+plot(redwine)
+```
+
+```{r echo=TRUE, fig.height=10, fig.width=10}
+plot(redwine[,c("ï..fixed.acidity", "citric.acid", "pH")])
+```
+
+### Ejercicio Diagrama de Dispersión y Regresión en R.
+
+[https://rpubs.com/MSiguenas/97848](https://rpubs.com/MSiguenas/97848)
+
+## Subconjunto de un Data Frame
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
