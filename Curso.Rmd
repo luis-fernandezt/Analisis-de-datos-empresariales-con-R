@@ -1,0 +1,650 @@
+---
+title: "Curso edX-  Análisis de datos empresariales con R"
+output: html_notebook
+---
+
+![](https://courses.edx.org/asset-v1:AnahuacX+UAMY.CP4.2x+3T2020+type@thumbnail+block@course_image-375x200.jpg)
+
+# Módulo 1: Introducción al análisis multivariado.
+
+## 1.1 Caracterización de datos multivariado
+
+### Lectura de Datos Multivariados
+
+En este primer video vamos a leer una base de datos estructurada como un conjunto de datos multivariados.
+
+```{r}
+redwine <- read.csv("https://bit.ly/2DdpG9E", header = T)
+names(redwine) <- c("fixed.acidity", "volatile.acidity", "citric.acid", "residual.sugar",
+                    "chlorides","free.sulfur.dioxide", "total.sulfur.dioxide", "density",
+                    "pH", "sulphates", "alcohol","quality")
+
+#read.csv(file, header = TRUE,  sep = ",", quote = "\"", dec = ".", fill = TRUE,  comment.char= "", ...)
+```
+
+### Funciones de Análisis del Data Frame
+
+En este video analizamos el data frame en términos de su estructura y sus características estadísticas esto lo hacemos usando los comandos `str` y `summary` 
+La importancia de este análisis radica en que si no conocemos el tipo de variables o sus parámetros estadísticos no podremos hacer el análisis.
+
+```{r}
+str(redwine)
+```
+
+```{r}
+summary(redwine) 
+```
+
+## 1.2 Análisis de Covarianza y correlación
+
+**Analisis de normalidad en R.**
+
+```{r}
+cov(redwine)
+```
+
+**Obtener Matriz de correlacion.**
+
+La matriz varianza–covarianza es una matriz cuadrada de dimensión nxm que recoge las varianzas en la diagonal principal y las covarianzas en los elementos de fuera de la diagonal principal.  El modelo mide y muestra la interdependencia en relaciones asociadas o entre cada pareja de variables y todas al mismo tiempo. [wikipedia.org/wiki/Matriz_de_correlación.](https://es.wikipedia.org/wiki/Matriz_de_correlaci%C3%B3n)
+
+![](https://courses.edx.org/assets/courseware/v1/2d42bba62009d0f9c6de8a563c43cde5/asset-v1:AnahuacX+UAMY.CP4.2x+3T2020+type@asset+block/matriz-varianza_covarianza.png)
+
+```{r}
+cor(redwine)
+```
+
+```{r}
+cor(redwine[,c("fixed.acidity", "citric.acid", "pH")]) # seleccionamos solo algunas variables del df
+```
+
+### Vamos a realizar ahora un análisis de co-varianza y correlación sobre el data set iris:
+
+[https://en.wikipedia.org/wiki/Iris_flower_data_set](https://en.wikipedia.org/wiki/Iris_flower_data_set)
+
+```{r}
+data("iris")
+library(dplyr)
+colnames(iris)
+irisnum <- select((iris), Sepal.Length:Petal.Width)
+```
+
+```{r}
+cov(irisnum)
+```
+
+```{r}
+cor(irisnum)
+```
+
+### Diseño de la Gráfica de Correlacion
+
+```{r echo=TRUE, fig.height=10, fig.width=10}
+plot(redwine)
+```
+
+```{r echo=TRUE, fig.height=10, fig.width=10}
+plot(redwine[,c("fixed.acidity", "citric.acid", "pH")])
+```
+
+### Ejercicio Diagrama de Dispersión y Regresión en R.
+
+[https://rpubs.com/MSiguenas/97848](https://rpubs.com/MSiguenas/97848)
+
+**Subconjunto de un Data Frame**
+
+El paquete `dplyr` proporciona un conjunto de funciones extremadamente útiles para manipular data frames y así reducir el número de repeticiones, la probabilidad de cometer errores y el número de caracteres que hay que escribir. Como valor extra, puedes encontrar que la gramática de `dplyr` es más fácil de entender.
+
+`Altgr` + `~` = `~`  
+`Altgr` + ` = `  
+`Alt` + `-` = `<-`
+
+```{r, echo=TRUE}
+
+plot(redwine$fixed.acidity ~ redwine$citric.acid) 
+
+```
+  
+  
+**Subconjunto de datos**
+
+```{r}
+library(dplyr)
+wine6 <- subset(redwine, quality == 6)
+head(wine6)
+tail(wine6)
+```
+
+## Representacion con Boxplot
+
+Un *boxplot* muestra la distribución de una variable usando cuartiles, de modo que de manera visual podemos inferir algunas cosas sobre su dispersión, ubicación y simetría. Una gráfica de este tipo dibuja un rectángulo cruzado por una línea recta horizontal. Esta línea recta representa la mediana, el segundo cuartil, su base representa el primer cuartil y su parte superior el tercer cuartil. Al rango entre el primer y tercer cuartil se le conoce como intercuartílico (RIC). Esta es la caja.
+
+Además, de la caja salen *dos líneas*. Una que llega hasta el mínimo valor de los datos en la variable o hasta el primer cuartil menos hasta 1.5 veces el RIC; y otra que llegar hasta el valor máximo de los datos o el tercer cuartil más hasta 1.5 veces el RIC.
+
+_Una ventaja de este tipo de gráfico es que podemos comparar las distribución de una misma variable para diferentes grupos.  
+—R para principiantes por Juan Bosco Mendoza Vega_
+
+```{r, echo=TRUE}
+boxplot(wine6$fixed.acidity)
+abline(h=13, col=6)
+```
+
+```{r, echo=TRUE}
+wine61 <- filter(wine6, fixed.acidity < 13)
+boxplot(wine61$fixed.acidity)
+```
+
+```{r, echo=TRUE}
+boxplot(wine61$pH)
+abline(h=3.7, col=6)
+```
+
+## Análisis de normalidad por gráfica de quantiles
+
+Un gráfico *Quantil-Quantil* permite observar cuán cerca está la distribución de un conjunto de datos a alguna distribución ideal ó comparar la distribución de dos conjuntos de datos.
+
+[Quantile-Quantile (Q-Q) Plot](https://rpubs.com/isoyactuaria/qqplotssurv)
+
+```{r, echo=TRUE}
+quantile(wine61$pH)
+```
+
+```{r echo=TRUE}
+wine62 <- subset(wine61, pH < 3.7)
+boxplot(wine62$pH)
+```
+
+```{r echo=TRUE}
+qqnorm(wine62[,"pH"], main="pH", col= 4)
+qqline(wine62[,"pH"], col=2)
+
+qqnorm(wine6[,"pH"], main="pH", col= 4)
+qqline(wine6[,"pH"], col=2)
+```
+
+## Función de usuario para graficar
+
+```{r, echo=TRUE}
+x <- wine62$pH
+
+plotnormal <- function(x)
+{media <- mean(x) 
+  desv <- sd(x)
+  hist(x, freq = FALSE)
+  curve(dnorm(x, media, desv), add = T, col=4)
+  abline(v=media, col=2)
+  }
+```
+
+```{r echo=TRUE}
+plotnormal(pH)
+```
+
+## Prueba de Normalidad de Anderson – Darling
+
+La prueba de normalidad de Anderson – Darling que se aplica cuando se tienen más de 5000 datos. La prueba de normalidad se toma como cierta si el valor p es > que el 5% (0.05).  
+
+El comando utilizado es `ad.test(x)` y forma parte de la librería `(nortest)` que debe instalarse antes de usar el análisis.  
+
+El estadístico de Anderson-Darling (AD) mide qué tan bien siguen los datos una distribución en particular. Por lo general, mientras mejor se ajuste la distribución a los datos, menor será el estadístico AD.  
+
+El estadístico AD se utiliza para calcular el valor `p` para la prueba de bondad de ajuste, que ayuda a determinar qué distribución se ajusta mejor a los datos. Por ejemplo, tal vez tenga que comprobar si sus datos cumplen con el supuesto de normalidad para una `prueba t`.  
+
+**Las hipótesis para la prueba de Anderson-Darling son:** 
+
+*H0: Los datos siguen una distribución especificada.*  
+*H1: Los datos no siguen una distribución especificada.* 
+
+Si el valor `p` para la prueba de Anderson-Darling es menor que el nivel de significancia seleccionado (por lo general 0.05 o 0.10), concluya que los datos no siguen la distribución especificada.
+
+[¿Cómo se utiliza el estadístico de Anderson-Darling para evaluar el ajuste de la distribución?](https://support.minitab.com/es-mx/minitab/18/help-and-how-to/quality-and-process-improvement/capability-analysis/supporting-topics/distributions-and-transformations-for-nonnormal-data/anderson-darling-and-distribution-fit/)
+
+```{r}
+library(nortest)
+ad.test(x)
+#ad.test(wine62$pH)
+#shapiro.test(wine62$pH)
+```
+
+# Módulo 2: Análisis visual de Datos Multivariados
+
+## 2.1 Graficando el Data Frame de un conjunto de datos 1
+
+### Lectura de Datos Multivariados
+
+Ejemplo de lectura e base de datos de diferentes cultivos de vinos y sus propiedades quimicas caracteristicas.
+
+```{r}
+library(rattle)
+data(wine, package = "rattle")
+head(wine, 4)
+```
+
+
+```{r}
+vinos <- wine
+ vinos$Proline = NULL
+ attach(vinos) 
+```
+
+### Analisis de Pares
+
+Análisis gráfico preliminar con el comando pairs graficando todas la variables una contra la otra para todo el data frame y muestra los gráficos de dispersión de las variables.  
+En la diagonal se muestran los nombres de las variables y se lee de izquierda a derecha.
+
+```{r echo=TRUE, fig.height=10, fig.width=10}
+library(car)
+pairs(vinos)
+
+```
+
+
+### Diseño de la Grafica de Boxplot
+
+Analizar el contenido de cada variable mediante una grafica del tipo `boxplot`. De una forma muy simple y poderosa. Cada boxplot representa la distribución de los cuantiles y sobre todo la mediana de cada variable para los 3 cultivos. Asi podemos distinguir cuales son mas representativas.  
+
+El comando `boxplot` es un contenedor para la función de diagrama de caja estándar de R, que proporciona identificación de puntos, etiquetas de eje y una interfaz de fórmula para diagramas de caja sin una variable de agrupación.
+
+```{r}
+Boxplot(vinos)
+```
+
+
+```{r echo=TRUE}
+vinos2 <- vinos
+vinos2$Alcalinity = NULL
+vinos2$Magnesium = NULL
+
+Boxplot(vinos2)
+
+```
+
+
+
+## 2.2 Graficando el Data Frame de un conjunto de datos 2
+
+### Ajustando los parámetros de graficación
+
+Graficamos un Boxplot por cada tipo de vino. Para mejorar la visualización utilizamos el comando `layout` y `matrix`  
+
+El objetivo es poder identificar cada vino por algun o algunos de estos criterios:  
+
+Alcalinity, Alcohol, Ash, Color, Dilution, Flavanoids, Hue, Magnesium, Malic, Nonflavanoids, Phenols, Proanthocyanins, Type.
+
+```{r echo=TRUE}
+layout(matrix(1:6, nc=2)) #matriz de 1x6 y 2 columnas
+Boxplot(Alcalinity, Type)
+Boxplot(Alcohol, Type)
+Boxplot(Flavanoids, Type)
+Boxplot(Phenols, Type)
+Boxplot(Hue, Type)
+Boxplot(Dilution, Type)
+
+```
+
+### Graficando con qplot
+
+```{r}
+library(ggplot2)
+```
+
+```{r, echo=TRUE}
+qplot(Phenols, Flavanoids, size =0.01, aes(colour = Type))
+```
+
+### Creación de líneas de tendencia
+
+A fin de distinguir mejor y confirmar que es posible separar los cultivos por la combinación de variables agregamos a la gráfica de puntos y una línea de tendencia suavizada mediante el comando smooth de la función `geom`. Esta línea presenta además una sección gris alrededor de ella que es el error estándar.
+
+```{r, echo=TRUE}
+qplot(Phenols, Flavanoids, aes(colour = Type),
+      geom = c("point", "smooth"))
+```
+
+### Agregando Facetas a la grafica
+
+```{r, echo=TRUE}
+ggplot(vinos) +
+  geom_point(aes(Phenols, Flavanoids, colour = Type, size = Alcohol)) +
+  facet_grid(~ Type, scales = "free" ) +
+  geom_smooth(aes(Phenols, Flavanoids), method = "lm")
+  
+```
+
+
+# Módulo 3: Análisis de clusters
+
+## 3.1 Analizando datos mediante clústeres 1
+
+### Cálculo de Dendogramas, distancia euclidiana para hacer los dendogramas de clústeres.
+
+La distancia euclidiana entre dos puntos p y q se define como la longitud del segmento que une ambos puntos. En coordenadas cartesianas, la distancia euclidiana se calcula empleando el teorema de Pitágoras.  
+
+En un espacio de dos dimensiones en el que cada punto está definido por las coordenadas (x,y), la distancia euclidiana entre p y q viene dada por la ecuación:  
+
+\[d_{euc}\left ( p,q \right )= \sqrt{ \left ( x_{p} - x_{q} \right )^{2} + \left ( y_{p} - y_{q} \right )^{2}}\]
+
+Después de calcular las distancias se realiza la formación de cluster mediante el dendrogramas:  
+
+Hierarchical clustering es una alternativa a los métodos de partitioning clustering que no requiere que se pre-especifique el número de clústeres. Los métodos que engloba el Hierarchical clustering se subdividen en dos tipos dependiendo de la estrategia seguida para crear los grupos:  
+
+**Agglomerative clustering (bottom-up):** el agrupamiento se inicia en la base del árbol, donde cada observación forma un cluster individual. Los clusters se van combinado a medida que la estructura crece hasta converger en una única "rama" central.  
+
+**Divisive clustering (top-down):** es la estrategia opuesta al agglomerative clustering, se inicia con todas las observaciones contenidas en un mismo cluster y se suceden divisiones hasta que cada observación forma un cluster individual.  
+
+En ambos casos, los resultados pueden representarse de forma muy intuitiva en una estructura de árbol llamada dendrograma.  
+
+_— Clustering y heatmaps: aprendizaje no supervisado, Joaquín Amat Rodrigo, 2017_
+
+### Ejemplo de aplicación clúster jerárquico
+
+**Creando el DF **
+```{r, echo=TRUE}
+x <- c(0.4, 0.22, 0.35, 0.26, 0.08, 0.45)
+y <- c(0.53, 0.38, 0.32, 0.19, 0.41, 0.30)
+data <- data.frame(x,y)
+data
+```
+
+**Calculando distancias y graficando**
+
+La forma de la función es:  
+
+`hclust(d, method = "complete", members = NULL)`
+
+`d:` Una estructura de disimilitud producida por dist.
+
+`method:` El método de aglomeración que se utilizará. Debe ser (una abreviatura de) "ward.D", "ward.D2", "single", "complete", "average" (= UPGMA), "mcquitty" (= WPGMA), "median" (= WPGMC) o "centroide" (= UPGMC).
+
+```{r, echo=TRUE}
+distancia <- dist(data)
+dendo1 <- hclust(distancia, "ward.D2")
+```
+
+```{r echo=TRUE}
+plot(dendo1)
+rect.hclust(dendo1, k=3, border = "darkblue")
+```
+
+Esta función calcula y devuelve la matriz de distancia calculada utilizando la medida de distancia especificada para calcular las distancias entre las filas de una matriz de datos.  
+
+La forma de la función es:  
+`dist(x, method = "euclidean", diag = FALSE, upper = FALSE, p = 2)`
+
+``method:` El metodo que se empleara es la medida de distancia que se utilizará. Debe ser "euclidean", "maximum", "manhattan", "canberra", "binary" o "minkowski". Se puede dar cualquier subcadena. 
+
+```{r echo=TRUE}
+vinos3 <- wine
+names(vinos3)
+vinos3$Proline <- NULL
+vinos3$Alcalinity <- NULL
+vinos3$Magnesium <- NULL
+names(vinos3)
+```
+
+```{r echo=TRUE}
+vinosNOcat <- vinos3
+
+vinosNOcat$Type <- NULL
+vinosNOcat$Malic <- NULL
+vinosNOcat$Ash <- NULL
+vinosNOcat$Nonflavanoids <- NULL
+vinosNOcat$Proanthocyanins <- NULL
+vinosNOcat$Color <- NULL
+vinosNOcat$Hue <- NULL
+vinosNOcat$Dilution <- NULL
+head(vinosNOcat)
+str(vinosNOcat)
+```
+
+### Generando los grupos de clúster
+
+La forma de la función es:  
+`cutree(tree, k = NULL, h = NULL)`  
+
+`k :` Es el número deseado de grupos. Debe estar entre 1 y el número de fila del componente "fusionar" del árbol. Si k es un vector de números enteros, la salida será una matriz con una columna para cada valor en k. El valor predeterminado es NULL.  
+
+`h :` La altura a la que cortar el árbol para producir los grupos. Los grupos se definen por la estructura del árbol sobre el corte. Si h es un vector de números, la salida será una matriz con una columna para cada valor en h. El valor predeterminado es NULL.
+
+```{r, echo=TRUE}
+library(cluster)
+distancia1 <- dist(vinosNOcat)
+fitHC <- hclust(distancia1, method = "ward.D2")
+```
+
+```{r echo=TRUE}
+plot(fitHC)
+rect.hclust(fitHC, k=3, border = "darkblue")
+```
+
+**Puntos con clusters**
+
+```{r, echo=TRUE}
+clusterxy <- cutree(fitHC,3)
+clusterxy
+```
+
+```{r echo=TRUE}
+data2 <- data.frame(vinosNOcat,clusterxy)
+tail(data2)
+plot(data2, col= clusterxy)
+
+```
+
+## 3.2 Analizando datos mediante clústeres 2
+
+### Analizando datos mediante clústeres 2
+
+**Construyendo la función clusplot()***
+
+```{r echo=TRUE}
+plot(vinos, col= clusterxy)
+```
+
+### Construyendo la función clusplot()
+
+**Gráfica de conjuntos**
+
+```{r}
+library(cluster)
+```
+
+```{r echo=TRUE}
+clusplot(data2,clusterxy, main= "Representación en 2D del análisis final de clusters", color=T, shade= T, lines=1, labels=2)
+```
+
+```{r echo=TRUE}
+clusplot(vinos,clusterxy, main= "Representación en 2D del análisis final de clusters", color=T, shade= T, lines=0)
+```
+
+### Calculando varios números de clústeres - kmeans()
+
+La función `kmeans` es uno de los métodos de clustering más utilizados. Destaca por la sencillez y velocidad de su algoritmo, sin embargo, presenta una serie de limitaciones que se deben tener en cuenta.  
+
+-Requiere que se indique de antemano el número de clusters que se van a crear, por eso nosotros vamos a hacer 10 ensayos.  
+
+-Las agrupaciones resultantes pueden variar dependiendo de la asignación aleatoria inicial de los centroides.
+
+-Para minimizar este problema se recomienda repetir el proceso de clustering entre 25-50 veces y seleccionar como resultado definitivo el que tenga menor suma total de varianza interna.
+
+-Presenta problemas de robustez frente a outliers. La única solución es excluirlos o recurrir a otros métodos de clustering más robustos como K-medoids (PAM).
+
+-En nuestro caso no hay outliers.  
+
+El objeto devuelto por la función `kmeans()` contiene entre otros datos: la media de cada una de las variables para cada cluster `(centers)`, un vector indicando a que cluster se ha asignado cada observación `(cluster)`, la suma de cuadrados interna de cada cluster `(withinss)` y la suma total de cuadrados internos de todos los clusters `(tot.withinss)`.
+
+Para evaluar cual es el número más adecuado de clusters este puede evaluarese con la relación: **between_SS / total_SS.**
+
+_— Clustering y heatmaps: aprendizaje no supervisado, Joaquín Amat Rodrigo 2017_
+
+**Análisis del núnero de clusters (Cuando se desconoce los numeros de clusters)**
+
+Creamos una `lista()` para guardar los clusters que pediremos (10), para ello hacemos un `for` para el analisis de la variable `i` con un vector de `1:10 clusters`, evaludados cada uno de los niveles por la funcion `kmeans()` Como es lista es un doble parentesis. 
+
+```{r}
+k <- list()
+for (i in 1:10) {
+  k[[i]] <- kmeans(vinosNOcat, i)
+}
+
+kmeans(vinosNOcat, i)
+```
+
+Comprobar la distancia del número de puntos del clusters.
+Las extraemos en una `lista()` llamada `betweens`, extraemos utilizando un `for()`. Le indicadmos que queremos guardar en una lista para cada uno de los análisis y que voy a tener un análisis previo, dividiendo las distancias que obtuve a traves de `betweenss()` respecto de la distancia total `totss()`, para cada una de los 10 valores que se obtengan a través de la función `for()`.
+
+
+```{r}
+betweens <- list()
+for (i in 1:10) {
+  betweens[[i]] <- k[[i]]$betweenss/k[[i]]$totss
+}
+
+k[[i]]$betweenss/k[[i]]$totss
+```
+
+El gráfico muestra la eficiencia en la distancia de cada uno de los 10 clusters y  donde esta el punto de inflexión. Es decir cual es el número óptimo de clusters.
+
+```{r echo=TRUE}
+plot(1:10, betweens, "o")
+```
+
+### Generando clústeres con datos normalizados
+
+Esto es un arreglo para graficar con 2:4 clusters en gráficos diferentes y verificar visualmente cada uno.
+
+```{r echo=TRUE}
+for (i in 2:4) {
+  plot(vinosNOcat, col=k[[i]]$cluster)
+}
+```
+
+**Normalizando los datos**
+
+```{r echo=TRUE}
+vinosNorm <- scale(vinosNOcat)
+tail(vinosNorm)
+```
+
+Analizamos con 3 clusters los datos normalizados
+
+```{r echo=TRUE}
+cluster2 <- kmeans(vinosNorm, 3)
+cluster2
+```
+
+```{r echo=TRUE}
+  plot(vinosNOcat, col=cluster2$cluster)
+```
+
+# Módulo 4: Análisis de componentes principales
+
+## 4.1 Analizando datos por Componentes Principales
+
+La técnica de "Principal Component Analysis" es un método estadístico que permite simplificar la complejidad de espacios muestrales con muchas variables al mismo tiempo que conserva su información.  
+
+Cada una de estas nuevas variables recibe el nombre de "componente principal". PCA tiene también un
+fuerte componente geométrico, pensemos en la representación en dos dimensiones que muestran un objeto, dependiendo de la vista que se tomen se puede escribir o entender mejor cada objeto y en general en tres dimensiones tiene perfectamente la geometría del objeto, sin embargo, cuando se trata de datos u observaciones, cada una de ellas tiene asociadas variables que la describen y si pensamos en cada variable como una dimensión, entonces tendríamos objetos descritos en N dimensiones.  
+
+Lo cual para la mente humana es inimaginable, por eso importancia de un método que permita reducir la dimensionalidad como PCA, que través de relaciones lineales, puede encontrar un número de factores subyacentes que explican aproximadamente lo mismo que las variables originales.  
+
+Esto lo convierte en un método muy útil de aplicar previo a utilización de otras técnicas
+estadísticas como regresión o cluster.
+
+### Generando el análisis de Componentes principales PCA
+
+`FactoMineR` es un paquete R dedicado al análisis de datos exploratorios multidimensionales (estilo francés).  
+_— Fue desarrollado y mantenido por François Husson, Julie Josse, Sébastien Lê, y J. Mazet._
+
+`FactoMineR` permite implementar métodos de análisis de datos como análisis de componentes principales (PCA), análisis de correspondencia (CA), análisis de correspondencia múltiple (MCA), así como análisis más avanzados.
+
+```{r}
+library(ggplot2)
+library(grid)
+library(FactoMineR)
+library(factoextra)
+```
+
+En la web [http://factominer.free.fr/book/](http://factominer.free.fr/book/) esta disponible la base de datos.
+
+
+```{r}
+library(readr)
+orange <- read.table("http://factominer.free.fr/book/orange.csv", 
+                     header = T, sep = ";", dec = ".", row.names = 1)
+class(orange)
+```
+
+Esta base de datos contiene diferentes varialbes que se agrupan en:  
+
+-Componentes sensoriales
+-Cuantitativas Suplementarias
+-Cualitativas Suplementarias
+
+Se grafican utilizando la funcion `PCA()` indicando cuales son las variales cuantitativas `quanti.sup` y cualitarias `quali.sup`. La salida son dos graficas: 
+
+```{r echo=TRUE}
+res.pca <- PCA(orange, quanti.sup = 8:14, quali.sup = 15:16)
+```
+
+### Análisis de contribución de los individuos al PCA
+
+```{r echo=TRUE}
+names(res.pca)
+res.pca$var
+```
+
+```{r echo=TRUE}
+res.pca$ind$contrib
+#funcion para graficar componentes principales
+fviz_contrib(res.pca, choice = "ind", axes = 1)
+```
+
+Solo dos componentes contribuyen con la mayoria de la variabilidad de la **dimension 1.**
+
+### Análisis de los individuos en PCA
+
+```{r echo=TRUE}
+res.pca$eig
+fviz_screeplot(res.pca, addlabels=T)
+```
+
+### El círculo de Correlación
+
+Esta gráfica muestra la correlación entre una variable y un componente principal y se utiliza como coordenadas de la variable. La representación de las variables difiere del gráfico de individuos pues ahora las variables están representadas por sus proyecciones y las variables están representadas por sus correlaciones _(Abdi y Williams 2010)_.  
+
+Esta gráfica también se conoce como gráficas de correlación de variables. Se puede interpretar de la siguiente manera:  
+
+1.- Las variables correlacionadas positivamente se agrupan.  
+2.- Las variables correlacionadas negativamente se colocan en lados opuestos del origen de la gráfica (cuadrantes opuestos).  
+3.- La distancia entre las variables y el origen mide la calidad de las variables en el mapa de factores. Las variables que están lejos del origen están bien representadas en la gráfica de individuos.
+
+[http://www.sthda.com/french/](http://www.sthda.com/french/)
+
+
+```{r echo=TRUE}
+round(res.pca$var$coord[,1:2],2)
+```
+
+```{r echo=TRUE}
+fviz_contrib(res.pca, choice = "var", axes = 1)
+fviz_contrib(res.pca, choice = "var", axes = 2)
+```
+
+### Calidad de la representación y gráfica Biplot
+
+```{r echo=TRUE}
+fviz_pca_biplot(res.pca, geom = "text", invisible = "quanti.sup") +
+  theme_gray()
+```
+
+### Analisis de cuosenos cuadrados
+
+```{r echo=TRUE}
+fviz_pca_ind(res.pca, col.ind = "cos2") +
+  scale_color_gradient2(low = "green", high= "red", midpoint = 0.75) +
+  theme_gray()
+```
+
+
+
+## Fin.

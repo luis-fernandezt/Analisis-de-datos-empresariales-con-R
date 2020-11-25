@@ -1,0 +1,39 @@
+---
+title: "Evaluacion de conocimientos"
+output: html_notebook
+---
+
+```{r}
+rm(list=ls())
+aire  <- read.csv("https://www.dropbox.com/s/r11ebr61t8mfton/Calidad_Aire.csv?dl=1")
+names(aire)
+```
+
+```{r echo=TRUE}
+attach(aire)
+ggplot(aire, aes(x=T, y=RH)) +  
+  geom_point(shape=18, color="blue") +
+  geom_smooth(method=lm, linetype="dashed", color="darkred", fill="blue")
+```
+
+```{r}
+rm(list=ls())
+food <- read.csv("https://www.dropbox.com/s/q19zf4lkhjblb7b/food-texture.csv?dl=1")
+names(food)
+```
+
+## FIN.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
